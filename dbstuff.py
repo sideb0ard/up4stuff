@@ -7,7 +7,7 @@ print "Opened database successfully"
 
 conn.execute('''CREATE TABLE USERS
        (ID INTEGER PRIMARY KEY     AUTOINCREMENT,
-       PHONE          INT     NOT NULL,
+       PHONE          INT     NOT NULL UNIQUE,
        VERIFIED       INT     DEFAULT 0,
        NAME           TEXT    NOT NULL);''')
 print "Table created successfully"

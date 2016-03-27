@@ -12,7 +12,7 @@ def hello_up4stuff():
 
 @app.route('/help')
 def help():
-    return 'Commands:<br>/user/create/<username></br>/usr/validate/<username>'
+    return 'Commands:<br>POST /user/create/?username=<name>&phonenumber=<numz>'
 
 
 @app.route('/user/create', methods=['POST', 'GET'])
