@@ -9,19 +9,18 @@ import flask
 
 app = flask.Flask(__name__)
 app.secret_key = 'super secritzz'
+DATABASE = './up4stuff.db'
+
+account = os.environ['TWILIO_ACCOUNT_SID']
+token = os.environ['TWILIO_AUTH_TOKEN']
+num = "+1" + os.environ['TWILIO_NUMBER']
+client = TwilioRestClient(account, token)
 
 totp = pyotp.TOTP(pyotp.random_base32(), interval=120)
 
 
 def generate_session():
     return base64.b64encode(os.urandom(16))
-
-
-DATABASE = './up4stuff.db'
-account = os.environ['TWILIO_ACCOUNT_SID']
-token = os.environ['TWILIO_AUTH_TOKEN']
-num = "+1" + os.environ['TWILIO_NUMBER']
-client = TwilioRestClient(account, token)
 
 
 @app.route('/')
