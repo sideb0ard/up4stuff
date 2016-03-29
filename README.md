@@ -36,7 +36,7 @@ Start it up!
 In another window, you can start calling the API with e.g.  
 
 Create user:  
-`curl --data "phonenumber=4155555555" localhost:5000/user/create`  
+`curl localhost:5000/user/create --data "phonenumber=4155555555"`  
 
 You should recieve an SMS confirmation code. The code is also currently shown on the server console.  
 
@@ -49,9 +49,9 @@ with session in cookie:
 `curl localhost:5000/user/list -b cookies.txt`  
 `AUTH SESSH!`
 
-without:
+without:  
 `curl localhost:5000/user/list`  
-Dingie, nae auth mate!`
+`Dingie, nae auth mate!`
 
 
 
