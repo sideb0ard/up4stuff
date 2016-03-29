@@ -45,7 +45,7 @@ Post that confirmation back with your number, and save the cookie which you get 
 
 The cookie has a session token which is then used for authenticating futher requests:
 
-with session in cookie:
+with session in cookie:  
 `curl localhost:5000/user/list -b cookies.txt`  
 `AUTH SESSH!`
 
