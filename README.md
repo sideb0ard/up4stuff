@@ -22,7 +22,7 @@ Install requirements files:
 Run `./dbstuff.py` to create a local sqlite3 DB.  
 
 ### Environment variables
-No credentials are stored in the code, so you need to make your creds available via local environment variables:
+No credentials are stored in the code, so you need to make your creds available via local environment variables:  
 export TWILIO_ACCOUNT_SID=XXXXXXXXXXXXXXXXXXX  
 export TWILIO_AUTH_TOKEN=XXXXXXXXXXXXXXXXXXXX  
 export TWILIO_NUMBER=XXXXXXXXXXXXXXXXXXXXXXXX
