@@ -41,7 +41,7 @@ Create user:
 You should recieve an SMS confirmation code. The code is also currently shown on the server console.  
 
 Post that confirmation back with your number, and save the cookie which you get back:  
-`curl localhost:5000/user/validate --data "phonenumber=4157455030&token=309058" -c cookies.txt`
+`curl localhost:5000/user/validate --data "phonenumber=4155555555&token=555555" -c cookies.txt`
 
 The cookie has a session token which is then used for authenticating futher requests:
 

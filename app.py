@@ -28,27 +28,6 @@ def hello_up4stuff():
     return 'We\'re Up 4 Stuff!'
 
 
-@app.route('/user/validate', methods=['POST', 'GET'])
-def user_validate():
-     phone = request.form['phonenumber']
-     token = request.form['token']
-     if totp.verify(token):
-         session['phonenumber'] = request.form['phonenumber']
-         sesh_id = generate_session()
-         session['id'] = sesh_id
-         conn = sqlite3.connect(DATABASE)
-         try:
-             conn.execute("update users set cookiekey = '" + sesh_id +
-                          "' where phone = " + phone)
-             conn.commit()
-         except sqlite3.OperationalError, msg:
-            conn.close()
-            return "sqlerrrrzzz: {0}".format(msg)
-         return "YAS!\n"
-     else:
-         return "BOO!\n"
-
-
 @app.route('/user/create', methods=['POST', 'GET'])
 def user_create():
     if request.method == 'GET':
@@ -69,6 +48,27 @@ def user_create():
         client.messages.create(to=phone, from_=num,
                                body="OTP: {0}".format(code))
         return "Sent message to {0}!\n".format(phone)
+
+
+@app.route('/user/validate', methods=['POST', 'GET'])
+def user_validate():
+     phone = request.form['phonenumber']
+     token = request.form['token']
+     if totp.verify(token):
+         session['phonenumber'] = request.form['phonenumber']
+         sesh_id = generate_session()
+         session['id'] = sesh_id
+         conn = sqlite3.connect(DATABASE)
+         try:
+             conn.execute("update users set cookiekey = '" + sesh_id +
+                          "' where phone = " + phone)
+             conn.commit()
+         except sqlite3.OperationalError, msg:
+            conn.close()
+            return "sqlerrrrzzz: {0}".format(msg)
+         return "YAS!\n"
+     else:
+         return "BOO!\n"
 
 
 @app.route('/user/list')
