@@ -4,7 +4,7 @@ import pyotp
 import sqlite3
 
 from twilio.rest import TwilioRestClient
-from flask import request, session, escape
+from flask import request, session, escape, jsonify
 import flask
 
 app = flask.Flask(__name__)
@@ -47,7 +47,8 @@ def user_create():
         print("Code is {0}\n".format(code))
         client.messages.create(to=phone, from_=num,
                                body="OTP: {0}".format(code))
-        return "Sent message to {0}!\n".format(phone)
+        # return "Sent message to {0}!\n".format(phone)
+        return jsonify({'result': "Sent message to {0}!".format(phone)})
 
 
 @app.route('/user/validate', methods=['POST', 'GET'])
@@ -61,14 +62,14 @@ def user_validate():
          conn = sqlite3.connect(DATABASE)
          try:
              conn.execute("update users set cookiekey = '" + sesh_id +
-                          "' where phone = " + phone)
+                          "', verified = 1" + " where phone = " + phone)
              conn.commit()
          except sqlite3.OperationalError, msg:
             conn.close()
-            return "sqlerrrrzzz: {0}".format(msg)
-         return "YAS!\n"
+            return jsonify({'sqlerror': msg})
+         return jsonify({'result': "YAS!"})
      else:
-         return "BOO!\n"
+         return jsonify({'result': "BOO!"})
 
 
 @app.route('/user/list')
@@ -81,12 +82,13 @@ def user_list():
                         session['phonenumber'] + "'")
             sesh = cur.fetchone()[0]
             if sesh == session['id']:
-                return "AUTH SESSH!\n"
-            return "NAE AUTH MATE."
+                return jsonify({'result': "AUTH SESH!"})
+            return jsonify({'result': "NAE AUTH MATE!"})
         except sqlite3.OperationalError, msg:
             conn.close()
-            return msg
-        return "{0}\n".format(escape(session['id']))
+            return jsonify({'result': "sqlerror {0}".format(msg)})
+
+        # return "{0}\n".format(escape(session['id']))
     return "Dingie, nae auth mate!\n"
 
 
