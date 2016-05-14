@@ -4,7 +4,7 @@ import pyotp
 import sqlite3
 
 from twilio.rest import TwilioRestClient
-from flask import request, session, escape, jsonify
+from flask import request, session, jsonify
 import flask
 
 app = flask.Flask(__name__)
@@ -17,6 +17,25 @@ num = "+1" + os.environ['TWILIO_NUMBER']
 client = TwilioRestClient(account, token)
 
 totp = pyotp.TOTP(pyotp.random_base32(), interval=120)
+
+
+def is_valid_session(session):
+    if 'phonenumber' in session and 'id' in session:
+        conn = sqlite3.connect(DATABASE)
+        cur = conn.cursor()
+        try:
+            cur.execute("select cookiekey from users where phone = '" +
+                        session['phonenumber'] + "'")
+            sesh = cur.fetchone()[0]
+            if sesh == session['id']:
+                return True
+        except sqlite3.OperationalError, msg:
+            conn.close()
+            # return jsonify({'result': "sqlerror {0}".format(msg)})
+            print "sqlerror {0}".format(msg)
+
+        # return "{0}\n".format(escape(session['id']))
+    return False
 
 
 def generate_session():
@@ -72,8 +91,8 @@ def user_validate():
          return jsonify({'result': "BOO!"})
 
 
-@app.route('/user/list')
-def user_list():
+@app.route('/user/gcm', methods=['POST'])
+def add_gcm():
     if 'phonenumber' in session and 'id' in session:
         conn = sqlite3.connect(DATABASE)
         cur = conn.cursor()
@@ -82,7 +101,11 @@ def user_list():
                         session['phonenumber'] + "'")
             sesh = cur.fetchone()[0]
             if sesh == session['id']:
-                return jsonify({'result': "AUTH SESH!"})
+                gcm_token = request.form['gcm_token']
+                conn.execute("update users set gcm_token = '" + gcm_token +
+                             "' where phone = " + session['phonenumber'])
+                conn.commit()
+                return jsonify({'GCM': gcm_token})
             return jsonify({'result': "NAE AUTH MATE!"})
         except sqlite3.OperationalError, msg:
             conn.close()
@@ -90,6 +113,29 @@ def user_list():
 
         # return "{0}\n".format(escape(session['id']))
     return "Dingie, nae auth mate!\n"
+
+
+@app.route('/user/list')
+def user_list():
+    if is_valid_session(session):
+        return jsonify({'result': "AUTH SESH!"})
+    else:
+        return jsonify({'result': "NAE AUTH MATE!"})
+
+
+@app.route('/event/create', methods=['POST'])
+def create_event():
+    if is_valid_session(session):
+        # print "IGOTZ {0}".format(request.get_json())
+        # event_details = requests.get_json()
+        broadcast_event(request.get_json())
+        return jsonify({'result': "AUTH EVENTY!"})
+    else:
+        return jsonify({'result': "NAE EVENTY FOR YOU MATE!"})
+
+
+def broadcast_event(details):
+    print "BROADCASTING DETAILZ {0}".format(details)
 
 
 if __name__ == '__main__':

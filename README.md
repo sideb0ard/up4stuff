@@ -53,6 +53,9 @@ without:
 `curl localhost:5000/user/list`  
 `Dingie, nae auth mate!`
 
+Ok, let's create an event:  
+ 
+curl localhost:5000/event/create -b cookies.txt -d @testevent.json -H "Content-Type: application/json"
 
 
 
