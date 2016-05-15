@@ -5,12 +5,14 @@ import sqlite3
 
 from twilio.rest import TwilioRestClient
 from flask import request, session, jsonify
+from gcm import GCM
 import flask
 
 app = flask.Flask(__name__)
 app.secret_key = 'super secritzz'
 DATABASE = './up4stuff.db'
 
+gcm_api_key = os.environ['GCM_API_KEY']
 account = os.environ['TWILIO_ACCOUNT_SID']
 token = os.environ['TWILIO_AUTH_TOKEN']
 num = "+1" + os.environ['TWILIO_NUMBER']
@@ -20,6 +22,9 @@ totp = pyotp.TOTP(pyotp.random_base32(), interval=120)
 
 
 def is_valid_session(session):
+    print "SESH {0}".format(session)
+    for key in session:
+        print "KEY {0}".format(key)
     if 'phonenumber' in session and 'id' in session:
         conn = sqlite3.connect(DATABASE)
         cur = conn.cursor()
@@ -35,6 +40,8 @@ def is_valid_session(session):
             print "sqlerror {0}".format(msg)
 
         # return "{0}\n".format(escape(session['id']))
+    else:
+        print "Nae phone number or id i guess"
     return False
 
 
@@ -136,6 +143,28 @@ def create_event():
 
 def broadcast_event(details):
     print "BROADCASTING DETAILZ {0}".format(details)
+    gcm = GCM(gcm_api_key)
+    conn = sqlite3.connect(DATABASE)
+    cur = conn.cursor()
+    try:
+        cur.execute("select gcm_token from users")
+        tokey = cur.fetchone()[0]
+    except sqlite3.OperationalError, msg:
+        conn.close()
+        print "BURNYEBUM {0}".format(msg)
+    if tokey:
+        print "TOKEY! {0}".format(tokey)
+        registration_ids = [tokey]
+        notification = {
+            "title": "awesomnizz",
+            "message": "wurds"
+        }
+        response = gcm.json_request(registration_ids=registration_ids,
+                                    data=notification)
+        if response and 'success' in response:
+            print "Yarly! successfully send an event!"
+    else:
+        print "NAE TOKEY!"
 
 
 if __name__ == '__main__':
