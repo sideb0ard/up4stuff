@@ -22,9 +22,6 @@ totp = pyotp.TOTP(pyotp.random_base32(), interval=120)
 
 
 def is_valid_session(session):
-    print "SESH {0}".format(session)
-    for key in session:
-        print "KEY {0}".format(key)
     if 'phonenumber' in session and 'id' in session:
         conn = sqlite3.connect(DATABASE)
         cur = conn.cursor()
@@ -155,12 +152,8 @@ def broadcast_event(details):
     if tokey:
         print "TOKEY! {0}".format(tokey)
         registration_ids = [tokey]
-        notification = {
-            "title": "awesomnizz",
-            "message": "wurds"
-        }
         response = gcm.json_request(registration_ids=registration_ids,
-                                    data=notification)
+                                    data=details)
         if response and 'success' in response:
             print "Yarly! successfully send an event!"
     else:
